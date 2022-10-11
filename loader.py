@@ -1,4 +1,17 @@
 import csv
+import mysql.connector
+
+
+
+
+mydb = mysql.connector.connect(
+  host="172.17.0.2",
+  user="root",
+  password="@12345a",
+  database="teste"
+)
+
+print(mydb)
 # with open('respostas.csv', newline='') as csvfile:
 #     spamreader = csv.reader(csvfile, delimiter=' ', quotechar=',')
 #         for row in spamreader:
@@ -42,34 +55,57 @@ def array_funções(fun):
 
     return(a_fun)
 
-with open('respostas.csv') as csvfile:
-    #dialect = csv.Sniffer().sniff(csvfile.read(1024))
-    # teste= csv.Sniffer().has_header(csvfile.read(1024))
-    # print(teste)
+with open('final.csv') as csvfile:
     # Timestamp,nome,atribuido,desejado,Backups,Hospedagem,e-mail,Cloud,DNS,Infraestrutura,Wifi,Estação,Servidor,Firewall,Devops,Monitoramento,ID
     csvfile.seek(0)
     reader = csv.reader(csvfile, delimiter=',')
     i=input("processar?(n/y)")
     if i == 'y':
-        with open('novo.csv', mode='w') as novocsv:
+        with open('processado.csv', mode='w') as novocsv:
             linha=0
             for row in reader:
                 if linha == 0:
                     row.append('ID')
+
                     escritor = csv.writer(novocsv,delimiter=',')
                     escritor.writerow(row)
                 else:
                     print('nome:'+ row[1])
                     id = input("ID: ")
                     row.append(id)
+                    #print(row)
                     escritor = csv.writer(novocsv,delimiter=',')
                     escritor.writerow(row)
                 linha += 1
+    #sql= "INSERT INTO teste.CAP_competencias_respostas (`data`, nome, cat_atribuido, cat_desejado, Backups,Banco_de_dados, Hospedagem, `e-mail`, Cloud, DNS, Infraestrutura, Wifi, Estação, Servidor, Firewall, Devops, Monitoramento, tec_id) VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);"
+        
+    mycursor = mydb.cursor()
+    with open('processado.csv') as processado:
+        linha=0
+        a = [None] * 18
+        leitor = csv.reader(processado, delimiter=',')
+        for row in leitor:
+            for x in range(18):
+                a[x]=row[x]
+            if linha == 0:
+                print("nada")
+            else:
+                # print(a)
+                # print(row)
+                # print(len(row))
+                # print(valores)
+                sql2= "INSERT INTO teste.CAP_competencias_respostas (`data`, nome, cat_atribuido, cat_desejado, Backups,Banco_de_dados, Hospedagem, `e-mail`, Cloud, DNS, Infraestrutura, Wifi, Estação, Servidor, Firewall, Devops, Monitoramento, tec_id) VALUES('"+row[0]+"','"+row[1]+"','"+row[2]+"','"+row[3]+"',"+row[4]+","+row[5]+","+row[6]+","+row[7]+","+row[8]+","+row[9]+","+row[10]+","+row[11]+","+row[12]+","+row[13]+","+row[14]+","+row[15]+","+row[16]+","+row[17]+")"
+                #print("%s" % row[0])
+                print(sql2)
+                # mycursor.execute(sql, row)
+                mycursor.execute(sql2)
+                mydb.commit()
+            linha += 1
     linha=0
     for row in reader:
         if linha != 0:
-            #print('nome:'+ row[1])
+            print('nome:'+ row[1])
             # teste=array_funções(row[2])
             # print(teste)
         linha += 1
-        
+
